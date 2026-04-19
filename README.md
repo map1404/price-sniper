@@ -60,6 +60,33 @@ python server.py
 
 Then open `http://127.0.0.1:8000` and paste any product URL (Amazon, Best Buy, Walmart, Target, Newegg).
 
+## Deploy on Render
+
+This repo now includes:
+
+- `Dockerfile`
+- `render.yaml`
+
+Recommended path:
+
+1. Push this repo to GitHub
+2. In Render, choose **New +** → **Blueprint**
+3. Select this repository
+4. Render will detect `render.yaml` and create the `price-sniper` web service
+5. Add any required environment variables in the Render dashboard:
+
+```bash
+OPENAI_API_KEY=...
+# and/or
+ANTHROPIC_API_KEY=...
+```
+
+Notes:
+
+- The service exposes `GET /health` for Render health checks
+- The server binds to `0.0.0.0` and uses Render's `PORT` environment variable
+- The React frontend is built into the Docker image and served by the Python server
+
 ## Run the React app in development
 
 Terminal 1:

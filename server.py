@@ -113,8 +113,8 @@ class PriceSniperHandler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    host = os.getenv("PRICE_SNIPER_HOST", "127.0.0.1")
-    port = int(os.getenv("PRICE_SNIPER_PORT", "8000"))
+    host = os.getenv("PRICE_SNIPER_HOST", "0.0.0.0")
+    port = int(os.getenv("PORT") or os.getenv("PRICE_SNIPER_PORT", "8000"))
     server = ThreadingHTTPServer((host, port), PriceSniperHandler)
     print(f"Price Sniper API listening at http://{host}:{port}")
     server.serve_forever()

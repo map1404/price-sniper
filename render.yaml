@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: price-sniper
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeployTrigger: commit
+    healthCheckPath: /health
