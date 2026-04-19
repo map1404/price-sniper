@@ -1,0 +1,44 @@
+[
+  {
+    "id": "headphones_seasonality",
+    "title": "Headphones buying seasonality",
+    "category": "headphones audio electronics",
+    "content": "Premium headphones and earbuds often hit their most aggressive discounts during Black Friday week, Prime Day windows, and major back-to-school promotions. Outside those windows, strong buy signals usually require the current price to be near the recent all-time low or accompanied by a short-lived flash sale."
+  },
+  {
+    "id": "apple_release_cycle",
+    "title": "Apple accessory pricing behavior",
+    "category": "apple airpods ipad accessory electronics",
+    "content": "Apple accessories and tablets usually hold price floors for long stretches, then dip during broad retail events. If the current price is materially above the historical low and a known sales window is close, waiting is often rewarded. If inventory is tight and the item is already within a few percent of its low, the downside of waiting is smaller than usual."
+  },
+  {
+    "id": "gaming_accessories_stock",
+    "title": "Gaming accessory stock pressure",
+    "category": "gaming controller console accessory electronics",
+    "content": "Controllers, headsets, and gaming accessories can rebound quickly after retailer stock tightens. Low-stock warnings matter more when current pricing is already competitive, because retailers tend to remove promotions before inventory normalizes."
+  },
+  {
+    "id": "laptops_price_behavior",
+    "title": "Laptop price behavior",
+    "category": "laptop notebook computer electronics",
+    "content": "Laptop pricing is volatile and often cyclical. Strong deals typically combine a price below the 90-day average, a discount near the all-time low, and either a flash-sale pattern or a major promo event. A rising 14-day trend without scarcity is usually a weak buy setup."
+  },
+  {
+    "id": "retailer_bundle_behavior",
+    "title": "Retailer discount behavior",
+    "category": "retailer pricing behavior best buy amazon walmart target newegg",
+    "content": "Different retailers discount differently. Amazon and Walmart tend to lead fast-moving price cuts, Best Buy may hold list price but add limited discounts or short windows, and Newegg can show the lowest price with weaker stock certainty. Cross-retailer spread is a useful confidence signal when the cheapest offer also has healthy stock."
+  },
+  {
+    "id": "general_buy_rule",
+    "title": "General buy-now heuristic",
+    "category": "pricing heuristic buy now wait avoid",
+    "content": "A practical buy-now setup is current price within 5 percent of the all-time low, below the 90-day average, and supported by either a flash-sale drop or stock pressure. A practical wait setup is moderate pricing with a downward trend or an upcoming sale event. Avoid is most justified when the product is far above the all-time low and trending upward without scarcity."
+  },
+  {
+    "id": "seasonal_release_pressure",
+    "title": "Release-cycle pressure",
+    "category": "seasonality release cycle electronics",
+    "content": "When a category is near a typical refresh or launch window, older models often soften in price. That makes a neutral verdict more likely unless the current price is already close to the historical floor or supply is visibly constrained."
+  }
+]
