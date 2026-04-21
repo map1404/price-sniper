@@ -9,6 +9,7 @@ import re
 import random
 from typing import List, Optional
 from dataclasses import dataclass
+from urllib.parse import urlparse
 
 
 @dataclass
@@ -32,6 +33,42 @@ def build_search_urls(product_name: str) -> dict:
         "Target":   f"https://www.target.com/s?searchTerm={query}",
         "Newegg":   f"https://www.newegg.com/p/pl?d={query}",
     }
+
+
+def retailer_from_url(url: str) -> Optional[str]:
+    host = urlparse(url).netloc.lower()
+    if "amazon." in host:
+        return "Amazon"
+    if "bestbuy." in host:
+        return "Best Buy"
+    if "walmart." in host:
+        return "Walmart"
+    if "target." in host:
+        return "Target"
+    if "newegg." in host:
+        return "Newegg"
+    return None
+
+
+def is_specific_product_url(url: str) -> bool:
+    path = urlparse(url).path.lower()
+    return any(
+        marker in path
+        for marker in ["/dp/", "/gp/product/", "/site/", "/ip/", "/p/"]
+    )
+
+
+def resolve_result_url(
+    retailer: str,
+    candidate_url: str,
+    product_url: str,
+    fallback_url: str,
+) -> str:
+    if candidate_url and is_specific_product_url(candidate_url):
+        return candidate_url
+    if retailer_from_url(product_url) == retailer and is_specific_product_url(product_url):
+        return product_url
+    return product_url if is_specific_product_url(product_url) else fallback_url
 
 
 # ── Price extractors per retailer ──────────────────────────────────────────────
@@ -158,18 +195,18 @@ async def crawl_fallback(retailer: str, url: str) -> Optional[RetailerResult]:
 
 # ── Mock data for demo / fallback ──────────────────────────────────────────────
 
-def mock_retailer_prices(product_name: str) -> List[dict]:
+def mock_retailer_prices(product_name: str, product_url: str) -> List[dict]:
     """
     Returns realistic mock data for demo purposes.
     Replace with live crawling in production.
     """
     base = random.uniform(180, 320)
     retailers = [
-        {"retailer": "Amazon",   "price": round(base * random.uniform(0.95, 1.05), 2), "stock": "in_stock",    "url": "https://amazon.com"},
-        {"retailer": "Best Buy", "price": round(base * random.uniform(0.98, 1.08), 2), "stock": "in_stock",    "url": "https://bestbuy.com"},
-        {"retailer": "Walmart",  "price": round(base * random.uniform(0.93, 1.02), 2), "stock": "low_stock",   "url": "https://walmart.com"},
-        {"retailer": "Target",   "price": round(base * random.uniform(1.00, 1.10), 2), "stock": "in_stock",    "url": "https://target.com"},
-        {"retailer": "Newegg",   "price": round(base * random.uniform(0.90, 1.00), 2), "stock": "out_of_stock","url": "https://newegg.com"},
+        {"retailer": "Amazon",   "price": round(base * random.uniform(0.95, 1.05), 2), "stock": "in_stock",    "url": product_url},
+        {"retailer": "Best Buy", "price": round(base * random.uniform(0.98, 1.08), 2), "stock": "in_stock",    "url": product_url},
+        {"retailer": "Walmart",  "price": round(base * random.uniform(0.93, 1.02), 2), "stock": "low_stock",   "url": product_url},
+        {"retailer": "Target",   "price": round(base * random.uniform(1.00, 1.10), 2), "stock": "in_stock",    "url": product_url},
+        {"retailer": "Newegg",   "price": round(base * random.uniform(0.90, 1.00), 2), "stock": "out_of_stock","url": product_url},
     ]
     return sorted(retailers, key=lambda x: x["price"])
 
@@ -197,7 +234,17 @@ def crawl_retailers(product_url: str, product_name: str) -> List[dict]:
             results = loop.run_until_complete(run_all())
 
         live_results = [
-            {"retailer": r.retailer, "price": r.price, "stock": r.stock, "url": r.url}
+            {
+                "retailer": r.retailer,
+                "price": r.price,
+                "stock": r.stock,
+                "url": resolve_result_url(
+                    r.retailer,
+                    r.url,
+                    product_url,
+                    search_urls.get(r.retailer, product_url),
+                ),
+            }
             for r in results if r is not None
         ]
 
@@ -208,4 +255,4 @@ def crawl_retailers(product_url: str, product_name: str) -> List[dict]:
 
     # Demo fallback
     print("⚠️  Live crawling unavailable — using demo data")
-    return mock_retailer_prices(product_name)
+    return mock_retailer_prices(product_name, product_url)

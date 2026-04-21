@@ -1,14 +1,7 @@
 import { useMemo, useState } from "react";
+import emlyonLogo from "./assets/emlyon-logo.svg";
 
 const samples = [
-  {
-    label: "Sony Headphones",
-    url: "https://www.amazon.com/dp/B09XS7JWHH"
-  },
-  {
-    label: "AirPods Pro",
-    url: "https://www.amazon.com/dp/B0BDHWDR12"
-  },
   {
     label: "iPad Air",
     url: "https://www.bestbuy.com/site/apple-ipad-air/1234567.p"
@@ -58,6 +51,114 @@ function SignalTile({ label, value }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </article>
+  );
+}
+
+function HistoryChart({ points }) {
+  const chartPoints = points
+    .map((point) => ({
+      date: point.date,
+      price: Number(point.price)
+    }))
+    .filter((point) => Number.isFinite(point.price));
+
+  if (chartPoints.length < 2) {
+    return (
+      <div className="history-empty">
+        <strong>No chart available</strong>
+        <span>At least two valid price points are needed to draw the 90-day trend.</span>
+      </div>
+    );
+  }
+
+  const width = 640;
+  const height = 240;
+  const padding = 18;
+  const minPrice = Math.min(...chartPoints.map((point) => point.price));
+  const maxPrice = Math.max(...chartPoints.map((point) => point.price));
+  const priceRange = Math.max(maxPrice - minPrice, 1);
+  const xStep = (width - padding * 2) / Math.max(chartPoints.length - 1, 1);
+
+  const linePath = chartPoints
+    .map((point, index) => {
+      const x = padding + index * xStep;
+      const y = height - padding - ((point.price - minPrice) / priceRange) * (height - padding * 2);
+      return `${index === 0 ? "M" : "L"} ${x} ${y}`;
+    })
+    .join(" ");
+
+  const areaPath = `${linePath} L ${padding + (chartPoints.length - 1) * xStep} ${height - padding} L ${padding} ${height - padding} Z`;
+  const lowPoint = chartPoints.reduce((lowest, point) => (point.price < lowest.price ? point : lowest));
+  const highPoint = chartPoints.reduce((highest, point) => (point.price > highest.price ? point : highest));
+  const latestPoint = chartPoints[chartPoints.length - 1];
+
+  const yLabels = [maxPrice, minPrice + priceRange / 2, minPrice];
+
+  function pointPosition(point) {
+    const index = chartPoints.findIndex(
+      (entry) => entry.date === point.date && entry.price === point.price
+    );
+    return {
+      x: padding + index * xStep,
+      y: height - padding - ((point.price - minPrice) / priceRange) * (height - padding * 2)
+    };
+  }
+
+  const lowCoords = pointPosition(lowPoint);
+  const highCoords = pointPosition(highPoint);
+  const latestCoords = pointPosition(latestPoint);
+
+  return (
+    <div className="history-chart-shell">
+      <div className="history-chart-metrics">
+        <article>
+          <span>Low</span>
+          <strong>{formatMoney(lowPoint.price)}</strong>
+        </article>
+        <article>
+          <span>High</span>
+          <strong>{formatMoney(highPoint.price)}</strong>
+        </article>
+        <article>
+          <span>Latest</span>
+          <strong>{formatMoney(latestPoint.price)}</strong>
+        </article>
+      </div>
+
+      <div className="history-chart">
+        <div className="history-y-axis">
+          {yLabels.map((value) => (
+            <span key={value}>{formatMoney(value)}</span>
+          ))}
+        </div>
+
+        <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="90-day price history chart">
+          <defs>
+            <linearGradient id="history-area-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(28, 102, 255, 0.30)" />
+              <stop offset="100%" stopColor="rgba(28, 102, 255, 0.02)" />
+            </linearGradient>
+          </defs>
+
+          {[0, 1, 2].map((index) => {
+            const y = padding + ((height - padding * 2) / 2) * index;
+            return <line key={index} x1={padding} y1={y} x2={width - padding} y2={y} />;
+          })}
+
+          <path d={areaPath} fill="url(#history-area-fill)" />
+          <path d={linePath} className="history-line" pathLength="100" />
+
+          <circle cx={lowCoords.x} cy={lowCoords.y} r="5" className="history-point low" />
+          <circle cx={highCoords.x} cy={highCoords.y} r="5" className="history-point high" />
+          <circle cx={latestCoords.x} cy={latestCoords.y} r="5.5" className="history-point latest" />
+        </svg>
+      </div>
+
+      <div className="history-chart-foot">
+        <span>{chartPoints[0].date}</span>
+        <span>{latestPoint.date}</span>
+      </div>
+    </div>
   );
 }
 
@@ -145,8 +246,16 @@ function App() {
 
   return (
     <div className="app-shell">
+      <div className="app-brand reveal reveal-1" aria-label="emlyon business school">
+        <img src={emlyonLogo} alt="emlyon business school logo" className="app-brand-logo" />
+        <div className="app-brand-copy">
+          <span>Academic Partner</span>
+          <strong>emlyon business school</strong>
+        </div>
+      </div>
+
       {page === "home" ? (
-        <header className="hero">
+        <header className="hero reveal reveal-2">
           <div className="hero-copy">
             <span className="eyebrow">Price intelligence engine</span>
             <h1>Know when to buy. Skip when to wait.</h1>
@@ -193,9 +302,6 @@ function App() {
       ) : (
         <>
           <section className="page-header reveal reveal-1">
-            <button className="ghost-button" onClick={() => setPage("home")}>
-              Back Home
-            </button>
             <div>
               <span className="eyebrow">Scan page</span>
               <h2>Launch a Product Scan</h2>
@@ -259,10 +365,22 @@ function App() {
 
               <section className="panel report-overview reveal reveal-3">
                 <div className="report-top">
-                  <div>
+                  <div className="report-hero">
+                    {result.product_image_url ? (
+                      <div className="product-image-frame">
+                        <img
+                          src={result.product_image_url}
+                          alt={result.product_name || "Product"}
+                          className="product-image"
+                        />
+                      </div>
+                    ) : null}
+
+                    <div>
                     <span className="eyebrow">Product intelligence report</span>
                     <h2 className="product-title">{result.product_name || "Product Analysis"}</h2>
                     <p className="product-url">{productUrl}</p>
+                    </div>
                   </div>
                   <div className="retailer-strip">
                     {sortedRetailers.slice(0, 5).map((item) => (
@@ -305,7 +423,7 @@ function App() {
                       {formatMoney(result.best_deal.price)} at {result.best_deal.retailer}
                     </strong>
                     <a href={result.best_deal.url} target="_blank" rel="noreferrer">
-                      Open retailer ↗
+                      Open product page ↗
                     </a>
                   </section>
                 ) : null}
@@ -409,18 +527,11 @@ function App() {
                 <div className="section-column">
                   <div className="panel-head">
                     <div>
-                      <h3>History Snapshot</h3>
-                      <p>Recent points pulled from the 90-day price series.</p>
+                      <h3>Price History</h3>
+                      <p>Trend view of the 90-day price series instead of a point list.</p>
                     </div>
                   </div>
-                  <div className="history-list">
-                    {historyPoints.slice(-8).map((point) => (
-                      <article key={`${point.date}-${point.price}`}>
-                        <span>{point.date}</span>
-                        <strong>{formatMoney(point.price)}</strong>
-                      </article>
-                    ))}
-                  </div>
+                  <HistoryChart points={historyPoints} />
                 </div>
               </section>
             </>

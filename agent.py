@@ -7,6 +7,7 @@ from typing import TypedDict, List, Optional
 from langgraph.graph import StateGraph, END
 from tools.crawler import crawl_retailers
 from tools.price_history import fetch_price_history
+from tools.product_metadata import fetch_product_image
 from tools.analyzer import analyze_signals
 from tools.reasoner import generate_verdict
 from tools.retriever import retrieve_context
@@ -17,6 +18,7 @@ from tools.retriever import retrieve_context
 class AgentState(TypedDict):
     product_url: str
     product_name: str
+    product_image_url: Optional[str]
     product_model: str
     category: str
     retailer_prices: List[dict]       # [{retailer, price, stock, url}]
@@ -57,6 +59,7 @@ def identify_product(state: AgentState) -> AgentState:
     return {
         **state,
         "product_name": product_name,
+        "product_image_url": fetch_product_image(url),
         "product_model": "",
         "category": "electronics",  # default; LLM can refine
     }
@@ -158,6 +161,7 @@ def run_agent(product_url: str) -> AgentState:
     initial_state: AgentState = {
         "product_url": product_url,
         "product_name": "",
+        "product_image_url": None,
         "product_model": "",
         "category": "",
         "retailer_prices": [],
