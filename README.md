@@ -145,23 +145,3 @@ PRICE_SNIPER_ENABLE_WEB_RAG=false
 
 ---
 
-## Rubric mapping
-
-| Step | Implementation |
-|------|---------------|
-| **1. Business case** | Consumers overpay; existing tools (Honey, CamelCamelCamel) track but don't *reason*. This agent decides. |
-| **2. Model selection** | GPT-4o / Claude Sonnet for reasoning; Crawl4AI for webcrawling; CamelCamelCamel for history |
-| **3. Model adaptation** | Chain-of-thought prompting + 3 few-shot examples with labelled BUY/WAIT/AVOID decisions |
-| **4. Implementation** | LangGraph agent with retrieval node, Python API server, React frontend dashboard |
-
----
-
-## Demo script (for presentation)
-
-1. Open the Streamlit app
-2. Paste a real Amazon product URL live
-3. Watch the agent animate through each pipeline step
-4. Show the price comparison bar chart
-5. Show the 90-day history with ATL line
-6. Reveal the verdict card + reasoning chain
-7. Say: *"Honey tells you what happened. This agent tells you what to do."*
