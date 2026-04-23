@@ -15,6 +15,7 @@ price_sniper/
 │   ├── crawler.py        ← Async multi-retailer webcrawler (Crawl4AI)
 │   ├── price_history.py  ← 90-day price history fetcher (CamelCamelCamel)
 │   ├── analyzer.py       ← Signal detection (flash sales, ATL, stock, seasonality)
+│   ├── retriever.py      ← Hybrid local + internet retrieval for RAG context
 │   └── reasoner.py       ← LLM reasoning agent with few-shot CoT prompting
 ├── ui/
 │   └── app.py            ← Streamlit demo interface
@@ -117,7 +118,7 @@ python agent.py
 ## How it works (LangGraph pipeline)
 
 ```
-[identify_product] → [crawl_prices] → [fetch_history] → [analyze] → [reason_and_decide]
+[identify_product] → [crawl_prices] → [fetch_history] → [analyze] → [retrieve_supporting_context] → [reason_and_decide]
 ```
 
 | Node | What it does |
@@ -126,7 +127,21 @@ python agent.py
 | `crawl_prices` | Async-crawls 5 retailers for live prices + stock status |
 | `fetch_history` | Fetches 90-day price history from CamelCamelCamel or generates realistic synthetic data |
 | `analyze` | Detects signals: flash sales, proximity to ATL, low stock, seasonal events |
+| `retrieve_supporting_context` | Pulls local buying heuristics plus optional internet snippets for RAG |
 | `reason_and_decide` | LLM with chain-of-thought + few-shot examples produces BUY/WAIT/AVOID verdict |
+
+## Internet-backed RAG
+
+The retriever now supports hybrid RAG:
+
+- Local repo knowledge from `knowledge/buying_guides.json`
+- Optional web search and page-snippet extraction for live market context
+
+Web retrieval is enabled by default when outbound network access is available. To disable it:
+
+```bash
+PRICE_SNIPER_ENABLE_WEB_RAG=false
+```
 
 ---
 

@@ -593,6 +593,16 @@ a {
   margin: 0 0 0.35rem;
 }
 
+.evidence-meta {
+  display: inline-block;
+  margin-bottom: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #295bda;
+}
+
 .evidence-row p {
   margin: 0;
   color: #665f57;

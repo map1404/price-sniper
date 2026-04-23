@@ -17,7 +17,7 @@ const stages = [
   "Scanning retailers for live pricing",
   "Building the 90-day context",
   "Computing price signals",
-  "Retrieving local buying guidance",
+  "Retrieving local and web buying guidance",
   "Producing the verdict"
 ];
 
@@ -504,7 +504,7 @@ function App() {
                   <div className="panel-head">
                     <div>
                       <h3>Retrieved Evidence</h3>
-                      <p>Local knowledge snippets injected before reasoning.</p>
+                      <p>Hybrid local and internet evidence injected before reasoning.</p>
                     </div>
                   </div>
                   <div className="stack-list">
@@ -512,6 +512,9 @@ function App() {
                       result.retrieved_context.map((item) => (
                         <article key={item.id} className="evidence-row">
                           <h4>{item.title}</h4>
+                          <span className="evidence-meta">
+                            {item.source_type === "web" ? "Web" : "Local"} · {item.source || "Unknown source"}
+                          </span>
                           <p>{item.content}</p>
                         </article>
                       ))

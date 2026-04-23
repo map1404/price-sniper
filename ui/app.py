@@ -792,7 +792,7 @@ if run_btn and product_url:
                     <div class="section-head" style="margin-top:1.2rem;">
                       <div>
                         <h3 style="margin:0;">Retrieved Evidence</h3>
-                        <p>Local knowledge snippets injected before reasoning.</p>
+                        <p>Hybrid local and internet evidence injected before reasoning.</p>
                       </div>
                     </div>
                     <div class="stack">
@@ -804,6 +804,9 @@ if run_btn and product_url:
                         f"""
                         <div class="evidence-card">
                           <h4>{item['title']}</h4>
+                          <small style="display:block; margin-bottom:0.45rem; color:#215e53; font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">
+                            {"Web" if item.get("source_type") == "web" else "Local"} · {item.get("source", "Unknown source")}
+                          </small>
                           <p>{item['content']}</p>
                         </div>
                         """,
